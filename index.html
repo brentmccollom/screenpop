@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tigerpaw Screen Pop Redirector</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 50px;
+            background-color: #f4f6f9;
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            display: inline-block;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Processing Tigerpaw Screen Pop...</h2>
+    <div class="loader"></div>
+    <p>Sending phone number to Tigerpaw Desktop client.</p>
+</div>
+
+<script>
+    // Function to parse URL parameters
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    window.onload = function() {
+        // Grab the phone number passed from Intermedia
+        const phone = getQueryParam('phone');
+        
+        if (phone) {
+            // Clean the phone number string (keep digits and % characters if unparsed)
+            const cleanPhone = phone.replace(/[^0-9%]/g, '');
+            
+            // Fire the custom windows protocol handler
+            window.location.href = 'tigerpaw://' + cleanPhone;
+            
+            // Automatically close the browser tab after 2.5 seconds to keep things clean
+            setTimeout(function() {
+                window.close();
+            }, 2500);
+        } else {
+            document.querySelector('p').innerText = "Error: No phone number detected in the URL.";
+        }
+    };
+</script>
+
+</body>
+</html>
