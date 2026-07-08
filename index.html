@@ -17,6 +17,7 @@
             border-radius: 8px;
             display: inline-block;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            min-width: 400px;
         }
         .loader {
             border: 4px solid #f3f3f3;
@@ -26,6 +27,14 @@
             height: 30px;
             animation: spin 1s linear infinite;
             margin: 20px auto;
+        }
+        .debug-box {
+            margin-top: 15px;
+            padding: 10px;
+            background: #eee;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
@@ -37,34 +46,48 @@
 
 <div class="container">
     <h2>Processing Tigerpaw Screen Pop...</h2>
-    <div class="loader"></div>
-    <p>Sending phone number to Tigerpaw Desktop client.</p>
+    <div id="status-icon" class="loader"></div>
+    <p id="status-text">Sending phone number to Tigerpaw Desktop client.</p>
+    <div id="debug" class="debug-box">Detecting URL parameters...</div>
 </div>
 
 <script>
-    // Function to parse URL parameters
     function getQueryParam(param) {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get(param);
     }
 
     window.onload = function() {
-        // Grab the phone number passed from Intermedia
         const phone = getQueryParam('phone');
+        const debugDiv = document.getElementById('debug');
+        const statusText = document.getElementById('status-text');
+        const statusIcon = document.getElementById('status-icon');
         
         if (phone) {
-            // Clean the phone number string (keep digits and % characters if unparsed)
+            debugDiv.innerText = "Received Raw Data: " + phone;
+            
+            // Clean the phone number string
             const cleanPhone = phone.replace(/[^0-9%]/g, '');
             
-            // Fire the custom windows protocol handler
+            // CRITICAL CHECK: If it contains a placeholder % or is missing real numbers, halt and show error
+            if (cleanPhone.includes('%') || cleanPhone.length < 7) {
+                statusIcon.style.animation = "none";
+                statusIcon.style.borderColor = "#e74c3c";
+                statusText.innerText = "Error: Phone system passed a variable placeholder token instead of real digits.";
+                debugDiv.innerHTML = "<strong>Fix Required:</strong> Check your Intermedia URL settings. It passed: <code>" + phone + "</code>";
+                return;
+            }
+            
+            // Fire the custom windows protocol handler cleanly
             window.location.href = 'intermediapop://' + cleanPhone;
             
-            // Automatically close the browser tab after 2.5 seconds to keep things clean
             setTimeout(function() {
                 window.close();
             }, 2500);
         } else {
-            document.querySelector('p').innerText = "Error: No phone number detected in the URL.";
+            statusIcon.style.animation = "none";
+            statusText.innerText = "Error: No phone number detected in the URL query string.";
+            debugDiv.innerText = "Expected URL format: ?phone=8124245288";
         }
     };
 </script>
