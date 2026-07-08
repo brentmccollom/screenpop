@@ -57,7 +57,7 @@
             const cleanPhone = phone.replace(/[^0-9%]/g, '');
             
             // Fire the custom windows protocol handler
-            window.location.href = 'tigerpaw://' + cleanPhone;
+            window.location.href = 'intermediapop://' + cleanPhone;
             
             // Automatically close the browser tab after 2.5 seconds to keep things clean
             setTimeout(function() {
